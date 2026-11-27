@@ -23,7 +23,7 @@ python -m unittest discover -s tests -v
 
 1. このプロジェクト専用のリソースグループ、Storage アカウント、Linux App Service を作成します。ストレージにテーブル `HoukagoConnectBoard` と非公開の Blob コンテナー `houkagoconnect-images` を作ります。
 2. App Service の環境変数に `AZURE_STORAGE_CONNECTION_STRING` と `FLASK_SECRET_KEY` を設定します。セッションキーは `python3 -c 'import secrets; print(secrets.token_hex(32))'` などで生成します。 `SCM_DO_BUILD_DURING_DEPLOYMENT=true` も設定します。
-3. Linux の Python 3.13 を選び、起動コマンドを `gunicorn --bind 0.0.0.0:8000 --workers 2 'app:create_app()'` に設定し、HTTPS のみを有効にします。
+3. Linux の Python 3.13 を選び、起動コマンドを `gunicorn --no-control-socket --bind 0.0.0.0:8000 --workers 2 'app:create_app()'` に設定し、HTTPS のみを有効にします。
 4. GitHub に公開リポジトリを作り、`main` をプッシュします。Azure 側は GitHub の OIDC フェデレーションを `repo:所有者/HoukagoConnect:ref:refs/heads/main` に設定し、資格情報に対象 App Service の Website Contributor ロールを付与します。GitHub Actions に変数 `AZURE_WEBAPP_NAME` とシークレット `AZURE_CLIENT_ID`、`AZURE_TENANT_ID`、`AZURE_SUBSCRIPTION_ID` を設定します。
 5. Actions の **Test and deploy** を実行し、公開トップページと `/health` を確認します。さらに画像付き投稿・コメント・共感・解決済みを公開サイトで確認し、提出する URL を `requirements.md` に記入します。
 

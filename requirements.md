@@ -51,4 +51,4 @@
 
 サイトのURL：公開確認後に記入
 
-GitHubリポジトリのURL：公開確認後に記入
+GitHubリポジトリのURL：https://github.com/syunsyundayo/HoukagoConnect
