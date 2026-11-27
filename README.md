@@ -2,6 +2,8 @@
 
 高校生向けの匿名掲示板です。勉強・部活・進路・雑談の投稿、キーワード検索、コメント、共感、解決済み、画像添付に対応します。
 
+[公開サイト](https://houkagoconnect-sk21.azurewebsites.net/)
+
 ## Mac で起動する
 
 Python 3.13 を使用します。プロジェクトフォルダーをターミナルで開き、次を実行します。
@@ -23,9 +25,9 @@ python -m unittest discover -s tests -v
 
 1. このプロジェクト専用のリソースグループ、Storage アカウント、Linux App Service を作成します。ストレージにテーブル `HoukagoConnectBoard` と非公開の Blob コンテナー `houkagoconnect-images` を作ります。
 2. App Service の環境変数に `AZURE_STORAGE_CONNECTION_STRING` と `FLASK_SECRET_KEY` を設定します。セッションキーは `python3 -c 'import secrets; print(secrets.token_hex(32))'` などで生成します。 `SCM_DO_BUILD_DURING_DEPLOYMENT=false` と `ENABLE_ORYX_BUILD=false` を設定します。依存ライブラリは GitHub Actions が同梱します。
-3. Linux の Python 3.13 を選び、起動コマンドを `bash startup.sh` に設定し、HTTPS のみを有効にします。
+3. Linux の Python 3.13 を選び、HTTPS のみを有効にします。初回パッケージのアップロード後に起動コマンドを `bash /home/site/wwwroot/startup.sh` に設定します。
 4. GitHub に公開リポジトリを作り、`main` をプッシュします。Azure 側は GitHub の OIDC フェデレーションを `repo:所有者@所有者ID/HoukagoConnect@リポジトリID:ref:refs/heads/main` に設定し、資格情報に対象 App Service の Website Contributor ロールを付与します。GitHub Actions に変数 `AZURE_WEBAPP_NAME`、`AZURE_RESOURCE_GROUP` とシークレット `AZURE_CLIENT_ID`、`AZURE_TENANT_ID`、`AZURE_SUBSCRIPTION_ID` を設定します。
-5. Actions の **Test and deploy** を実行し、公開トップページと `/health` を確認します。さらに画像付き投稿・コメント・共感・解決済みを公開サイトで確認し、提出する URL を `requirements.md` に記入します。
+5. Actions の **Test and deploy** を実行します。初回はアップロード後に手順 3 の起動コマンドを反映し、公開トップページと `/health` を確認します。さらに画像付き投稿・コメント・共感・解決済みを公開サイトで確認し、提出する URL を `requirements.md` に記入します。
 
 [Azure の Python アプリ設定](https://learn.microsoft.com/en-us/azure/app-service/configure-language-python) · [GitHub Actions から App Service にデプロイする方法](https://learn.microsoft.com/azure/app-service/deploy-github-actions) · [GitHub の OIDC 設定](https://docs.github.com/en/actions/reference/security/oidc#immutable-subject-claims)
 
