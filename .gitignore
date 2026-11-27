@@ -12,3 +12,5 @@ __pycache__/
 *.pem
 *.key
 .DS_Store
+
+.python_packages/

@@ -10,8 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
       - run: pip install -r requirements.txt
@@ -26,8 +26,18 @@ jobs:
     concurrency:
       group: houkagoconnect-production
     steps:
-      - uses: actions/checkout@v4
-      - run: git archive --format=zip --output="$RUNNER_TEMP/app.zip" HEAD
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Build deployment package on GitHub
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/app"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/app"
+          cd "$RUNNER_TEMP/app"
+          python -m pip install --only-binary=:all: --target .python_packages/lib/site-packages -r requirements.txt
+          zip -q -r "$RUNNER_TEMP/app.zip" .
       - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -43,5 +53,7 @@ jobs:
         env:
           APP_URL: ${{ steps.app.outputs.webapp-url }}
         run: |
-          curl --fail --silent --show-error --retry 8 --retry-all-errors "$APP_URL/health" | python -c 'import json,sys; assert json.load(sys.stdin) == {"status":"ok","storage":"azure"}'
-          curl --fail --silent --show-error "$APP_URL/" | grep -F '<title>放課後Connect</title>'
+          set -euo pipefail
+          APP_URL="${APP_URL%/}"
+          curl --fail --silent --show-error --max-time 20 --retry 24 --retry-delay 15 --retry-all-errors "$APP_URL/health" | python -c 'import json,sys; assert json.load(sys.stdin) == {"status":"ok","storage":"azure"}'
+          curl --fail --silent --show-error --max-time 20 "$APP_URL/" | grep -F '<title>放課後Connect</title>'
