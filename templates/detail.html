@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }} · 放課後Connect{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('index') }}">← 投稿一覧</a>
+<article class="card">
+  <div class="meta"><span class="tag {{ post.category }}">{{ categories[post.category] }}</span>
+    {% if solved %}<span class="tag solved">✓ 解決済み</span>{% endif %}
+    <span>匿名</span> <time datetime="{{ post.time }}">{{ post.time[:10] }}</time>
+  </div>
+  <h1>{{ post.title }}</h1>
+  <p class="body">{{ post.body }}</p>
+  {% if post.image %}<img class="attachment" src="{{ url_for('image', post_id=post.id) }}" alt="投稿に添付された画像">{% endif %}
+  <div class="actions">
+    <form method="post" action="{{ url_for('interact', post_id=post.id, action='react') }}">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button type="submit" {% if reacted %}disabled{% endif %}>♡ {{ '共感済み' if reacted else '共感' }} {{ count }}</button>
+    </form>
+    {% if owner and not solved %}
+    <form method="post" action="{{ url_for('interact', post_id=post.id, action='resolve') }}">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><button type="submit">解決済みにする</button>
+    </form>
+    {% endif %}
+  </div>
+</article>
+<section class="card">
+  <h2>コメント <small>{{ comments|length }} 件</small></h2>
+  {% for comment in comments %}
+  <article class="comment"><div class="meta">匿名 <time datetime="{{ comment.time }}">{{ comment.time[:10] }}</time></div>
+    <p class="body">{{ comment.body }}</p>
+  </article>
+  {% else %}<p>まだコメントはありません。</p>{% endfor %}
+  <form class="stack" method="post" action="{{ url_for('interact', post_id=post.id, action='comment') }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>コメントを書く<textarea name="body" maxlength="500" rows="3" required></textarea></label>
+    <button type="submit">匿名でコメントする</button>
+  </form>
+</section>
+{% endblock %}

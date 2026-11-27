@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">放課後の匿名掲示板</p>
+  <h1>放課後、<br>ちょっと話そう。</h1>
+  <p>勉強のつまずきも、部活や進路の悩みも。<br>高校生どうしで、気軽に聞いてみよう。</p>
+  <a href="{{ url_for('new_post') }}" class="button">＋ はじめての投稿</a>
+</section>
+<section aria-labelledby="feed">
+  <h2 id="feed">みんなの投稿 <small>{{ posts|length }} 件</small></h2>
+  <form class="filters" method="get">
+    <label>キーワード<input name="q" type="search" value="{{ query }}" maxlength="100" placeholder="タイトル・本文を検索"></label>
+    <label>カテゴリ<select name="category">
+      <option value="">すべて</option>
+      {% for key, label in categories.items() %}<option value="{{ key }}" {% if category == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select></label>
+    <button type="submit">検索</button>
+    {% if query or category %}<a href="{{ url_for('index') }}">解除</a>{% endif %}
+  </form>
+  {% for post in posts %}
+  <article class="card">
+    <div class="meta"><span class="tag {{ post.category }}">{{ categories[post.category] }}</span>
+      {% if post.id in solved %}<span class="tag solved">✓ 解決済み</span>{% endif %}
+      <time datetime="{{ post.time }}">{{ post.time[:10] }}</time>
+      {% if post.image %}<span>画像あり</span>{% endif %}
+    </div>
+    <h3><a href="{{ url_for('detail', post_id=post.id) }}">{{ post.title }}</a></h3>
+    <p class="excerpt">{{ post.body|truncate(160, true, '…') }}</p>
+  </article>
+  {% else %}
+    <div class="card empty">{% if query or category %}条件に合う投稿がありません。{% else %}まだ投稿がありません。最初の話題を投稿してみよう！{% endif %}</div>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}放課後Connect{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+<header><nav class="wrap" aria-label="メイン">
+  <a class="brand" href="{{ url_for('index') }}"><span aria-hidden="true">✦</span> 放課後<span>Connect</span></a>
+  <a class="button compact" href="{{ url_for('new_post') }}">＋ 投稿する</a>
+</nav></header>
+<main class="wrap">{% block content %}{% endblock %}</main>
+<footer class="wrap">放課後Connect · 個人が特定できる情報は投稿しないでください。</footer>
+</body>
+</html>
