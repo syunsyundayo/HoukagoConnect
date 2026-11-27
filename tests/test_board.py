@@ -2,8 +2,10 @@ import io
 import re
 import tempfile
 import unittest
+from contextlib import closing
 
 from PIL import Image
+from werkzeug.test import EnvironBuilder
 
 from app import create_app
 
@@ -20,8 +22,12 @@ class BoardTests(unittest.TestCase):
         return re.search(r'name="csrf" value="([^"]+)"', client.get(path).text).group(1)
 
     def publish(self, **extra):
-        return self.client.post('/new', data={'csrf': self.token(self.client, '/new'),
-            'category': 'study', 'title': '数学ＡＢＣ', 'body': '<script>本文</script>', **extra})
+        data = {'csrf': self.token(self.client, '/new'), 'category': 'study',
+                'title': '数学ＡＢＣ', 'body': '<script>本文</script>', **extra}
+        with closing(EnvironBuilder(path='/new', method='POST', data=data)) as builder:
+            environ = builder.get_environ()
+            with environ['wsgi.input']:
+                return self.client.open(environ)
 
     def test_post_search_filter_and_persistence(self):
         response = self.publish()
